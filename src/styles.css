@@ -1,0 +1,243 @@
+:root,
+:root[data-theme='dark'] {
+  --bg: #000;
+  --fg: #fdfdfd;
+  --muted: #a1a4a5;
+  --line: rgba(255, 255, 255, 0.14);
+  --chip: rgba(255, 255, 255, 0.06);
+  --accent: #7c8cff;
+  --serif: 'Instrument Serif', 'Times New Roman', serif;
+  --sans: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --mono: 'JetBrains Mono', ui-monospace, Menlo, monospace;
+  color-scheme: dark;
+}
+:root[data-theme='light'] {
+  --bg: #f4f4f6;
+  --fg: #0c0c10;
+  --muted: #5d6068;
+  --line: rgba(0, 0, 0, 0.14);
+  --chip: rgba(0, 0, 0, 0.04);
+  color-scheme: light;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* Mandatory snapping with snap-stop: every scroll lands on exactly one step,
+   so each clip gets to play instead of being flicked past. */
+html {
+  background: var(--bg);
+  color: var(--fg);
+  scroll-snap-type: y mandatory;
+  transition: background 0.4s ease, color 0.4s ease;
+}
+body {
+  font-family: var(--sans);
+  -webkit-font-smoothing: antialiased;
+  background: var(--bg);
+  transition: background 0.4s ease;
+}
+
+/* The canvas takes the touches: vertical drags scroll the page, horizontal
+   drags and long presses are the app gestures. */
+.canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: max(16px, env(safe-area-inset-top)) 16px 16px;
+  pointer-events: none;
+}
+.nav > * { pointer-events: auto; }
+.nav-link {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--muted);
+  text-decoration: none;
+  padding: 8px 4px;
+}
+.nav-link:hover { color: var(--fg); }
+.icon-btn {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--chip);
+  color: var(--fg);
+  cursor: pointer;
+}
+
+.steps { position: relative; z-index: 1; pointer-events: none; }
+.step {
+  height: 100svh;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  display: flex;
+  align-items: center;
+  padding: 0 clamp(24px, 6vw, 96px);
+}
+
+/* Phone-first: only the phone and the one-line HUD are visible. */
+.copy { display: none; }
+
+.label {
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 18px;
+}
+.label .part { color: var(--accent); }
+h1, h2 {
+  font-family: var(--serif);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  line-height: 1.02;
+  margin-bottom: 18px;
+}
+h1 { font-size: clamp(46px, 5.4vw, 84px); }
+h2 { font-size: clamp(40px, 4.4vw, 66px); }
+.body { color: var(--muted); font-size: 17px; line-height: 1.6; }
+.hint {
+  display: inline-block;
+  margin-top: 24px;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--accent);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 6px 12px;
+}
+
+.row { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 28px; pointer-events: auto; }
+.pill {
+  display: inline-flex;
+  align-items: center;
+  font: 500 14px var(--sans);
+  color: var(--fg);
+  text-decoration: none;
+  background: var(--chip);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 11px 20px;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+.pill:hover { border-color: var(--muted); }
+.pill.solid { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+.pill:focus-visible, .icon-btn:focus-visible, .nav-link:focus-visible, .rail button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.hud {
+  position: fixed;
+  left: 0; right: 0;
+  bottom: 0;
+  z-index: 2;
+  padding: 0 16px max(22px, env(safe-area-inset-bottom));
+  text-align: center;
+  pointer-events: none;
+}
+.hud .row { margin-top: 0; }
+.hud-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.hud-hint {
+  margin-top: 6px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--accent);
+}
+
+.rail {
+  position: fixed;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.rail button {
+  width: 14px;
+  height: 14px;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  position: relative;
+}
+.rail button::after {
+  content: '';
+  position: absolute;
+  left: 50%; top: 50%;
+  width: 4px; height: 4px;
+  border-radius: 4px;
+  background: var(--muted);
+  opacity: 0.45;
+  transform: translate(-50%, -50%);
+  transition: height 0.3s, opacity 0.3s, background 0.3s;
+}
+.rail button.on::after { height: 14px; opacity: 1; background: var(--accent); }
+
+/* Press-and-hold progress ring under the finger. */
+.hold {
+  position: fixed;
+  z-index: 4;
+  width: 64px;
+  height: 64px;
+  transform: translate(-50%, -50%) rotate(-90deg);
+  pointer-events: none;
+  opacity: 0;
+  animation: hold-in 0.15s ease 0.12s forwards;
+}
+.hold circle { fill: none; stroke: var(--line); stroke-width: 3; }
+.hold .fill {
+  stroke: var(--accent);
+  stroke-linecap: round;
+  stroke-dasharray: 151;
+  stroke-dashoffset: 151;
+  animation: hold-fill var(--ms) linear forwards;
+}
+@keyframes hold-in { to { opacity: 1; } }
+@keyframes hold-fill { to { stroke-dashoffset: 0; } }
+
+/* Wide screens: text on the left, phone on the right. */
+@media (min-width: 900px) {
+  .copy {
+    display: block;
+    max-width: min(420px, 38vw);
+    opacity: 0.15;
+    transform: translateY(24px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+  .step.is-active .copy { opacity: 1; transform: none; }
+  .copy .row { justify-content: flex-start; }
+  .hud { display: none; }
+  .rail { right: 20px; }
+  .nav { padding: 20px 24px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .copy, .pill, html, body { transition: none; }
+}
