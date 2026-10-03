@@ -1,9 +1,9 @@
 import { useMemo } from 'react'
 import * as THREE from 'three'
 
-// Proportions follow a current 6.1" phone (about 71.5 × 147 mm).
-export const BODY = { w: 1.6, h: 3.3, d: 0.16, r: 0.27 }
-export const SCREEN = { w: 1.47, h: 3.17, r: 0.21 }
+// A 20:9 Android phone, matching the 720 × 1616 screen recordings.
+export const BODY = { w: 1.6, h: 3.43, d: 0.16, r: 0.24 }
+export const SCREEN = { w: 1.47, h: 3.3, r: 0.18 }
 export const SCREEN_ASPECT = SCREEN.w / SCREEN.h
 
 function roundedRect(w, h, r) {
@@ -57,7 +57,7 @@ function useGeometries() {
       bump,
       glass: flatPanel(BODY.w - 0.03, BODY.h - 0.03, BODY.r - 0.015),
       screen: flatPanel(SCREEN.w, SCREEN.h, SCREEN.r),
-      island: flatPanel(0.42, 0.12, 0.06),
+      punch: new THREE.CircleGeometry(0.038, 32),
     }
   }, [])
 }
@@ -73,12 +73,12 @@ export function Phone({ screenMaterial, frameColor = '#2c2d33' }) {
         <meshPhysicalMaterial color={frameColor} metalness={1} roughness={0.28} clearcoat={0.6} envMapIntensity={1.3} />
       </mesh>
 
-      {/* Front: black glass, then the screen, then the camera island on top. */}
+      {/* Front: black glass, then the screen, then the punch-hole camera on top. */}
       <mesh geometry={g.glass} position={[0, 0, front + 0.002]}>
         <meshPhysicalMaterial color="#030304" roughness={0.08} metalness={0} clearcoat={1} envMapIntensity={1.4} />
       </mesh>
       <mesh geometry={g.screen} position={[0, 0, front + 0.004]} material={screenMaterial} />
-      <mesh geometry={g.island} position={[0, SCREEN.h / 2 - 0.13, front + 0.006]}>
+      <mesh geometry={g.punch} position={[0, SCREEN.h / 2 - 0.055, front + 0.006]}>
         <meshBasicMaterial color="#000" />
       </mesh>
 

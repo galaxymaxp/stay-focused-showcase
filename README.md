@@ -39,7 +39,7 @@ frame, unless the step has `loop: true`.
 
 ### Files
 
-Put clips in `public/videos/dark/` and `public/videos/light/`, named after the
+Clips live in `public/videos/dark/` and `public/videos/light/`, named after the
 step's `clip` value:
 
 ```
@@ -52,29 +52,36 @@ wants. The light set is optional: any clip missing from `light/` falls back to
 the `dark/` one. Holding the phone mid-clip switches to the other recording at
 the same timestamp, so record both sets with the same timing if you make them.
 
-### The 12 clips
+### The clips
 
-| # | File | Record this | Length |
-|---|------|-------------|--------|
-| 00 | `00-intro` | Home screen, idle, maybe a gentle scroll. Loops. | 4–6 s |
-| 01 | `01-sync` | Connect a source and watch items arrive. | 4–6 s |
-| 02 | `02-generate` | Start a generation and let the animation finish. The phone zooms in on the upper part of the screen here. | 5–8 s |
-| 03 | `03-review` | Scroll through results, accept one, edit one. | 4–6 s |
-| 04 | `04-assist-ask` | Ask a question, the answer appears. | 5–7 s |
-| 05 | `05-assist-explain` | Ask for a simpler explanation. Close-up on the lower half. | 5–7 s |
-| 06 | `06-assist-practice` | Answer two or three quiz or flashcard items. | 5–7 s |
-| 07 | `07-assist-progress` | Open the progress view. | 4–5 s |
-| 08 | `08-swipe-tasks` | Swipe into the task generation page. | 3–5 s |
-| 09 | `09-swipe-scheduler` | Swipe into the scheduler page. | 3–5 s |
-| 10 | `10-hold-theme` | Press and hold to switch light/dark. | 3–4 s |
-| 11 | `11-outro` | Back on the home screen, calm. Loops. | 4–6 s |
+The dark set is cut from one full take (`XRecorder_20261003_01.mp4`) with
+`scripts/cut-clips.py`; the cut times for every clip are in that script.
 
-**Study assist** has four stops, one per feature, because one long clip
-would play while the visitor is not scrolling and they would miss most of it.
-One feature per stop means each one gets a scroll and its own camera move. To
-show more or fewer features, add or remove entries in `src/content.js` (copy
-an existing `assist-*` step, give it a new `id` and `clip`, and update the
-`part` labels).
+| # | File | Shows | Status |
+|---|------|-------|--------|
+| 00 | `00-intro` | Today: clock dial, Up Next, schedule (loops) | recorded |
+| 01 | `01-sync` | Generate loads Canvas courses, sync tapped | recorded |
+| 02 | `02-source` | Open a course, pick a lecture PPTX, Generate Reviewer | recorded |
+| 03 | `03-generate` | Generation orb to "Ready in your Library" (waiting sped up 10×) | recorded |
+| 04 | `04-reviewer` | Reviewer opens, scroll to a topic with highlighted terms | recorded |
+| 05 | `05-assist-summarize` | Study Assist quick assist: Summarize | recorded |
+| 06 | `06-assist-keypoints` | Selecting key points, their assist chips | recorded |
+| 07 | `07-assist-select` | Hold-and-drag selection → Define · Explain · Example · Test Me · Ask | recorded |
+| 08 | `08-assist-example` | Example answer with its "From your material" label | recorded |
+| 09 | `09-quiz-create` | New Quiz options, Create Quiz, generation | recorded |
+| 10 | `10-quiz-practice` | Answering, Correct, results with ideas to revisit | recorded |
+| 11 | `11-queue` | Queue | recorded |
+| 12 | `12-library` | Library by course, Reviewers / Quizzes / Drafts | recorded |
+| 13 | `13-tasks` | Tasks (the swipe-left page) | recorded |
+| 14 | `14-today-plan` | Today: drag free time, Proposed plan, Apply plan (the swipe-right page) | recorded |
+| 15 | `15-hold-theme` | Press and hold to switch light/dark | **needs a take** |
+| 16 | `16-outro` | Today, calm (loops) | recorded |
+
+**Study Assist** has four stops because it is the app's defining feature and
+each way of using it (whole concept, key points, a selected phrase, grounding
+labels) deserves its own scroll. One long clip would keep playing while the
+visitor is reading and most of it would be missed. To change the split, add or
+remove `assist-*` entries in `src/content.js`.
 
 ### How to record
 
@@ -102,9 +109,10 @@ an existing `assist-*` step, give it a new `id` and `clip`, and update the
 
 ### Cutting and compressing
 
-Trim each clip out of the long take and encode it small. The 3D screen is
-roughly 9 : 19.5 (any modern phone recording fits; the edges are cropped
-slightly like `object-fit: cover`), so 720 px wide is plenty:
+`scripts/cut-clips.py` does this for every clip from a cut list. To cut one
+by hand: the 3D screen is 20 : 9 like the recording phone (other phones fit too;
+the edges are cropped slightly like `object-fit: cover`), and 720 px wide is
+plenty:
 
 ```
 # cut 02-generate from 0:12.5 to 0:19.0 of the full take

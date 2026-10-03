@@ -44,7 +44,7 @@ function PhoneRig({ steps, feed, theme }) {
   const ax = split ? Math.min(vw * 0.2, vw / 2 - BODY.w * scale * 0.5 - 0.6) : 0
   const ay = split ? 0 : vh * 0.04
   const spread = split ? 1 : 0.3 // sideways moves are smaller on narrow screens
-  const depth = split ? 1 : 0.6
+  const depth = split ? 0.72 : 0.6 // how far close-ups come toward the camera
 
   useFrame((state, dt) => {
     const g = group.current
