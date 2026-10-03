@@ -51,6 +51,13 @@ with `loop: true`); a still (`.webp`, `.png`, `.jpg`) simply shows. A theme
 without its own media uses the dark one, and a file that does not load shows a
 placeholder naming the path it expects.
 
+Every clip has a **poster**, its first frame as a small still at
+`public/posters/<theme>/<name>.webp`. All posters and stills load with the page
+(about 1 MB together), so a step shows its own screen the moment it snaps in;
+the clip takes over from the poster as soon as it has a frame, and because the
+poster *is* that first frame the hand-over is seamless. `scripts/cut-clips.py`
+writes the posters along with the clips.
+
 ### What each step shows
 
 Dark clips are cut from one full take (`XRecorder_20261003_01.mp4`, Oct 3) with

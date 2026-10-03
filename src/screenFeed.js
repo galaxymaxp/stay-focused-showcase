@@ -2,14 +2,19 @@ import * as THREE from 'three'
 
 const IMAGE = /\.(png|jpe?g|webp|avif)$/i
 
+// Each clip has a poster: its first frame as a small still, at
+// posters/<theme>/<name>.webp next to videos/<theme>/<name>.mp4.
+const posterOf = (path) => (IMAGE.test(path) ? path : path.replace(/^videos\//, 'posters/').replace(/\.mp4$/, '.webp'))
+
 // Supplies the texture shown on the phone screen.
 //
 // Each step names its screen media per theme: a short clip or a still image.
 // Activating a step restarts its clip and plays it at its own frame rate, so
-// scroll speed never affects playback. The previous texture stays on screen
-// until the new media has a frame to show, which avoids a black flash between
-// steps. A theme with no media of its own uses the dark one; media that fails
-// to load is replaced by a drawn placeholder naming the file it expects.
+// scroll speed never affects playback. Until the clip has a frame to show, the
+// screen shows the step's poster (the clip's first frame), so a slow download
+// never leaves the previous step on screen. All posters and stills are loaded
+// up front because they are small. A theme with no media of its own uses the
+// dark one; if nothing loads, a drawn placeholder names the file it expects.
 export class ScreenFeed {
   constructor({ steps, base, aspect }) {
     this.steps = steps
@@ -20,6 +25,7 @@ export class ScreenFeed {
     this.theme = 'dark'
     this.want = null
     this.startedAt = 0
+    this.preloaded = new Set()
 
     this.canvas = document.createElement('canvas')
     this.canvas.width = 540
@@ -81,6 +87,8 @@ export class ScreenFeed {
         coverFit(e.texture, video.videoWidth / video.videoHeight, this.aspect)
       }
     })
+    // While a restarted clip seeks back to 0 it still shows its last frame.
+    video.addEventListener('seeked', () => (e.seeking = false))
     video.addEventListener('error', fail)
     video.src = this.base + path
     return e
@@ -103,6 +111,10 @@ export class ScreenFeed {
     this.index = index
     this.theme = theme
     this.select(changed)
+    if (!this.preloaded.has(theme)) {
+      this.preloaded.add(theme)
+      this.steps.forEach((_, i) => this.still(i))
+    }
     // Start downloading the neighbours so the next step plays immediately.
     this.resolve(index + 1)
     this.resolve(index - 1)
@@ -116,15 +128,31 @@ export class ScreenFeed {
     const v = next?.video
     if (!v) return
     v.loop = Boolean(this.steps[this.index]?.loop)
-    if (restart) v.currentTime = this.carry ?? 0
+    if (restart) {
+      next.seeking = v.readyState > 0 // with no data yet there is no seek to wait for
+      v.currentTime = this.carry ?? 0
+    }
     v.play().catch(() => {})
   }
 
-  // Called every frame; returns the texture to put on the screen.
+  // The step's still (an image step's own image, or a clip's poster) once it
+  // has loaded, trying the current theme first and then dark.
+  still(i) {
+    for (const theme of [this.theme, 'dark']) {
+      const path = this.path(i, theme)
+      if (!path) continue
+      const s = this.entry(posterOf(path))
+      if (s.texture) return s.texture
+    }
+    return null
+  }
+
+  // Called every frame; returns the texture to put on the screen: the live
+  // media if it has a frame, else the step's still, else the placeholder.
   frame(now) {
     const e = this.want
-    if (e?.texture && (!e.video || e.video.readyState >= 2)) this.shown = e.texture
-    else if (!e) this.shown = this.placeholder
+    const live = e?.texture && (!e.video || (e.video.readyState >= 2 && !e.seeking))
+    this.shown = (live ? e.texture : this.still(this.index)) ?? this.placeholder
     if (this.shown === this.placeholder) {
       drawPlaceholder(this.ctx, this.steps[this.index], this.index, this.theme, (now - this.startedAt) / 1000, this.path(this.index, this.theme))
       this.placeholder.needsUpdate = true
