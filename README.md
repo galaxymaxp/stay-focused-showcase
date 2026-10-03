@@ -39,49 +39,53 @@ frame, unless the step has `loop: true`.
 
 ### Files
 
-Clips live in `public/videos/dark/` and `public/videos/light/`, named after the
-step's `clip` value:
+Each step in `src/content.js` has a `media` entry naming what the phone shows
+in each theme, relative to `public/`:
 
+```js
+media: { dark: 'videos/dark/02-generate.mp4', light: 'images/light/generating.webp' },
 ```
-public/videos/dark/02-generate.mp4
-public/videos/light/02-generate.mp4
-```
 
-Until a file exists, that step shows a placeholder that names the exact file it
-wants. The light set is optional: any clip missing from `light/` falls back to
-the `dark/` one. Holding the phone mid-clip switches to the other recording at
-the same timestamp, so record both sets with the same timing if you make them.
+A clip (`.mp4`) plays once from the start when the step snaps in (or loops,
+with `loop: true`); a still (`.webp`, `.png`, `.jpg`) simply shows. A theme
+without its own media uses the dark one, and a file that does not load shows a
+placeholder naming the path it expects.
 
-### The clips
+### What each step shows
 
-The dark set is cut from one full take (`XRecorder_20261003_01.mp4`) with
-`scripts/cut-clips.py`; the cut times for every clip are in that script.
+Dark clips are cut from one full take (`XRecorder_20261003_01.mp4`, Oct 3) with
+`scripts/cut-clips.py`, which holds the cut times. Stills are the Sep 30 device
+screenshots from the *Stay Focused UI* folder; there is no light-mode recording
+yet, so light mode uses those screenshots and falls back to the dark clip where
+no light screenshot exists.
 
-| # | File | Shows | Status |
-|---|------|-------|--------|
-| 00 | `00-intro` | Today: clock dial, Up Next, schedule (loops) | recorded |
-| 01 | `01-sync` | Generate loads Canvas courses, sync tapped | recorded |
-| 02 | `02-source` | Open a course, pick a lecture PPTX, Generate Reviewer | recorded |
-| 03 | `03-generate` | Generation orb to "Ready in your Library" (waiting sped up 10×) | recorded |
-| 04 | `04-reviewer` | Reviewer opens, scroll to a topic with highlighted terms | recorded |
-| 05 | `05-assist-summarize` | Study Assist quick assist: Summarize | recorded |
-| 06 | `06-assist-keypoints` | Selecting key points, their assist chips | recorded |
-| 07 | `07-assist-select` | Hold-and-drag selection → Define · Explain · Example · Test Me · Ask | recorded |
-| 08 | `08-assist-example` | Example answer with its "From your material" label | recorded |
-| 09 | `09-quiz-create` | New Quiz options, Create Quiz, generation | recorded |
-| 10 | `10-quiz-practice` | Answering, Correct, results with ideas to revisit | recorded |
-| 11 | `11-queue` | Queue | recorded |
-| 12 | `12-library` | Library by course, Reviewers / Quizzes / Drafts | recorded |
-| 13 | `13-tasks` | Tasks (the swipe-left page) | recorded |
-| 14 | `14-today-plan` | Today: drag free time, Proposed plan, Apply plan (the swipe-right page) | recorded |
-| 15 | `15-hold-theme` | Press and hold to switch light/dark | **needs a take** |
-| 16 | `16-outro` | Today, calm (loops) | recorded |
+| # | Step | Dark | Light |
+|---|------|------|-------|
+| 00 | Intro | clip `00-intro` (Today, loops) | still `02-today` |
+| 01 | Choose a course | clip `01-course` | still `01-generate` |
+| 02 | Generate | clip `02-generate` (waiting sped up 10×) | still `generating` |
+| 03 | Reviewer | clip `03-reviewer` | still `updated-reviewer` |
+| 04 | Study Assist 1/4 · quick assists | clip `04-assist-summarize` | dark clip |
+| 05 | Study Assist 2/4 · key points | clip `05-assist-keypoints` | dark clip |
+| 06 | Study Assist 3/4 · selection | clip `06-assist-select` | still `study-assist` |
+| 07 | Study Assist 4/4 · grounding label | clip `07-assist-example` | still `study-assist` |
+| 08 | Practice quiz · create | clip `08-quiz-create` | dark clip |
+| 09 | Practice quiz · answer | clip `09-quiz-practice` | dark clip |
+| 10 | Library | still `06-library-course` | still `06-library-course` |
+| 11 | Tasks (swipe ←) | clip `11-tasks` | still `03-tasks` |
+| 12 | Today plan (swipe →) | clip `12-today-plan` | still `02-today` |
+| 13 | Light & dark (hold) | still `01-generate` | still `01-generate` |
+| 14 | Outro | clip `14-outro` (loops) | still `04-library` |
 
 **Study Assist** has four stops because it is the app's defining feature and
 each way of using it (whole concept, key points, a selected phrase, grounding
 labels) deserves its own scroll. One long clip would keep playing while the
 visitor is reading and most of it would be missed. To change the split, add or
 remove `assist-*` entries in `src/content.js`.
+
+A light-mode take of the same flow can replace the light stills: cut it with
+`scripts/cut-clips.py` into `public/videos/light/` (new times needed) and point
+each step's `light` entry at its clip.
 
 ### How to record
 

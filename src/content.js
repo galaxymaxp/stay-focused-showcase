@@ -2,8 +2,9 @@
 //
 // Each step is one scroll stop. When a stop snaps into view its clip plays
 // from the start at normal speed (scroll position never scrubs the video).
-// Clips are loaded from public/videos/<theme>/<clip>.mp4; a missing file
-// shows a labelled placeholder on the phone instead. See README.md.
+// `media` names what the phone screen shows in each theme: a clip (.mp4) or a
+// still (.png/.jpg/.webp), relative to public/. A theme without its own media
+// uses the dark one; a missing file shows a labelled placeholder. See README.md.
 
 export const app = {
   name: 'Stay Focused',
@@ -39,7 +40,7 @@ export const poses = {
 export const steps = [
   {
     id: 'intro',
-    clip: '00-intro',
+    media: { dark: 'videos/dark/00-intro.mp4', light: 'images/light/02-today.webp' },
     chapter: 'Stay Focused',
     title: 'Reviewers from your own course material.',
     body: 'Stay Focused turns lecture files into study reviewers, then helps you work through them with Study Assist. Scroll to watch it run.',
@@ -48,24 +49,16 @@ export const steps = [
     loop: true,
   },
   {
-    id: 'sync',
-    clip: '01-sync',
-    chapter: 'Sync',
-    title: 'Your Canvas courses, in one place.',
-    body: 'Connect Canvas once and your current courses appear in Generate. One tap syncs them again.',
+    id: 'course',
+    media: { dark: 'videos/dark/01-course.mp4', light: 'images/light/01-generate.webp' },
+    chapter: 'Choose a course',
+    title: 'Pick a course, then the lecture.',
+    body: 'Your Canvas courses are listed in Generate. Open one, choose a lecture file and request a reviewer.',
     pose: 'left',
   },
   {
-    id: 'source',
-    clip: '02-source',
-    chapter: 'Choose a source',
-    title: 'Pick the lecture you need to study.',
-    body: 'Open a course, choose a lecture file and request a reviewer. Without Canvas, use text, the camera or a local PDF instead.',
-    pose: 'right',
-  },
-  {
     id: 'generate',
-    clip: '03-generate',
+    media: { dark: 'videos/dark/02-generate.mp4', light: 'images/light/generating.webp' },
     chapter: 'Generate',
     title: 'A reviewer, written from that file.',
     body: 'Generation runs in the background, so you can leave the screen. Queue tracks it and Library keeps the result.',
@@ -73,16 +66,16 @@ export const steps = [
   },
   {
     id: 'reviewer',
-    clip: '04-reviewer',
+    media: { dark: 'videos/dark/03-reviewer.mp4', light: 'images/light/updated-reviewer.webp' },
     chapter: 'Reviewer',
     title: 'Read it, search it, jump between topics.',
     body: 'Each reviewer is organised into topics with key points and highlighted terms taken from the selected material.',
-    pose: 'center',
+    pose: 'right',
   },
   // Study Assist is the defining feature, so it gets one stop per way of using it.
   {
     id: 'assist-summarize',
-    clip: '05-assist-summarize',
+    media: { dark: 'videos/dark/04-assist-summarize.mp4' },
     chapter: 'Study Assist',
     part: '1 / 4',
     title: 'Quick assists for the whole concept.',
@@ -91,7 +84,7 @@ export const steps = [
   },
   {
     id: 'assist-keypoints',
-    clip: '06-assist-keypoints',
+    media: { dark: 'videos/dark/05-assist-keypoints.mp4' },
     chapter: 'Study Assist',
     part: '2 / 4',
     title: 'Or only the key points you pick.',
@@ -100,7 +93,7 @@ export const steps = [
   },
   {
     id: 'assist-select',
-    clip: '07-assist-select',
+    media: { dark: 'videos/dark/06-assist-select.mp4', light: 'images/light/study-assist.webp' },
     chapter: 'Study Assist',
     part: '3 / 4',
     title: 'Hold any word to select exactly what you mean.',
@@ -109,7 +102,7 @@ export const steps = [
   },
   {
     id: 'assist-example',
-    clip: '08-assist-example',
+    media: { dark: 'videos/dark/07-assist-example.mp4', light: 'images/light/study-assist.webp' },
     chapter: 'Study Assist',
     part: '4 / 4',
     title: 'Every answer says where it came from.',
@@ -118,7 +111,7 @@ export const steps = [
   },
   {
     id: 'quiz-create',
-    clip: '09-quiz-create',
+    media: { dark: 'videos/dark/08-quiz-create.mp4' },
     chapter: 'Practice quiz',
     title: 'Turn the reviewer into a quiz.',
     body: 'Choose the number of questions, the difficulty and the question formats. The quiz is built from the reviewer’s topics.',
@@ -126,31 +119,23 @@ export const steps = [
   },
   {
     id: 'quiz-practice',
-    clip: '10-quiz-practice',
+    media: { dark: 'videos/dark/09-quiz-practice.mp4' },
     chapter: 'Practice quiz',
     title: 'Answer, check, and see what to revisit.',
     body: 'Results list the ideas you missed, so the next session knows where to start.',
     pose: 'center',
   },
   {
-    id: 'queue',
-    clip: '11-queue',
-    chapter: 'Queue',
-    title: 'Everything in progress, in one list.',
-    body: 'Queue shows each generation job: not started, finished, or in need of attention.',
-    pose: 'left',
-  },
-  {
     id: 'library',
-    clip: '12-library',
+    media: { dark: 'images/dark/06-library-course.webp', light: 'images/light/06-library-course.webp' },
     chapter: 'Library',
     title: 'Saved by course, ready to reopen.',
     body: 'Reviewers, quizzes and drafts are kept per course. Saved reviewers reopen even offline.',
-    pose: 'right',
+    pose: 'left',
   },
   {
     id: 'tasks',
-    clip: '13-tasks',
+    media: { dark: 'videos/dark/11-tasks.mp4', light: 'images/light/03-tasks.webp' },
     chapter: 'Tasks',
     title: 'Swipe one way for your coursework.',
     body: 'Assignments from Canvas land in Tasks with their due, missing and completed counts per course.',
@@ -159,7 +144,7 @@ export const steps = [
   },
   {
     id: 'today',
-    clip: '14-today-plan',
+    media: { dark: 'videos/dark/12-today-plan.mp4', light: 'images/light/02-today.webp' },
     chapter: 'Today',
     title: 'Swipe the other way to plan your day.',
     body: 'Drag the dial over your free time and Today proposes a study plan you can apply in one tap.',
@@ -168,19 +153,18 @@ export const steps = [
   },
   {
     id: 'theme',
-    clip: '15-hold-theme',
+    media: { dark: 'images/dark/01-generate.webp', light: 'images/light/01-generate.webp' },
     chapter: 'Light & dark',
     title: 'Hold to switch the lights.',
-    body: 'Press and hold to flip between light and dark mode.',
+    body: 'Press and hold to flip between light and dark mode. Try it on the phone.',
     hint: 'Hold the phone',
     pose: { preset: 'closeup', focus: 0 },
-    duration: 4,
   },
   {
     id: 'outro',
-    clip: '16-outro',
+    media: { dark: 'videos/dark/14-outro.mp4', light: 'images/light/04-library.webp' },
     chapter: 'Stay Focused',
-    title: 'Source. Reviewer. Study Assist. Reuse.',
+    title: 'Course. Reviewer. Study Assist. Reuse.',
     body: 'Everything you just scrolled through, built for CTE students and CTE Board Examiners.',
     pose: 'hero',
     loop: true,

@@ -1,19 +1,21 @@
 import * as THREE from 'three'
 
+const IMAGE = /\.(png|jpe?g|webp|avif)$/i
+
 // Supplies the texture shown on the phone screen.
 //
-// Every step has its own short clip. Activating a step restarts that clip and
-// plays it at its own frame rate, so scroll speed never affects playback. The
-// previous texture stays on screen until the new clip has a frame to show,
-// which avoids a black flash between steps. A clip that fails to load (most
-// often because the file is not recorded yet) is replaced by a drawn
-// placeholder that names the file it expects.
+// Each step names its screen media per theme: a short clip or a still image.
+// Activating a step restarts its clip and plays it at its own frame rate, so
+// scroll speed never affects playback. The previous texture stays on screen
+// until the new media has a frame to show, which avoids a black flash between
+// steps. A theme with no media of its own uses the dark one; media that fails
+// to load is replaced by a drawn placeholder naming the file it expects.
 export class ScreenFeed {
   constructor({ steps, base, aspect }) {
     this.steps = steps
     this.base = base
     this.aspect = aspect
-    this.clips = new Map()
+    this.media = new Map()
     this.index = -1
     this.theme = 'dark'
     this.want = null
@@ -28,25 +30,49 @@ export class ScreenFeed {
     this.shown = this.placeholder
 
     // Low-power modes can block muted autoplay; the first touch retries it.
-    this.retry = () => this.want?.video.paused && !this.want.video.ended && this.want.video.play().catch(() => {})
+    this.retry = () => {
+      const v = this.want?.video
+      if (v?.paused && !v.ended) v.play().catch(() => {})
+    }
     window.addEventListener('pointerdown', this.retry)
   }
 
-  src(theme, clip) {
-    return `${this.base}videos/${theme}/${clip}.mp4`
+  path(i, theme) {
+    const m = this.steps[i]?.media
+    return m?.[theme] ?? m?.dark ?? ''
   }
 
-  entry(theme, clip) {
-    const key = `${theme}/${clip}`
-    let e = this.clips.get(key)
+  entry(path) {
+    let e = this.media.get(path)
     if (e) return e
+    e = { path, video: null, texture: null, state: 'loading' }
+    this.media.set(path, e)
+    const fail = () => {
+      e.state = 'failed'
+      this.select(false)
+    }
+    if (IMAGE.test(path)) {
+      const img = new Image()
+      img.crossOrigin = 'anonymous'
+      img.onload = () => {
+        e.texture = new THREE.Texture(img)
+        e.texture.colorSpace = THREE.SRGBColorSpace
+        e.texture.anisotropy = 8
+        e.texture.needsUpdate = true
+        coverFit(e.texture, img.naturalWidth / img.naturalHeight, this.aspect)
+        e.state = 'ready'
+      }
+      img.onerror = fail
+      img.src = this.base + path
+      return e
+    }
     const video = document.createElement('video')
     video.muted = true
     video.playsInline = true
     video.setAttribute('playsinline', '')
     video.preload = 'auto'
     video.crossOrigin = 'anonymous'
-    e = { key, video, texture: null, state: 'loading' }
+    e.video = video
     video.addEventListener('loadeddata', () => {
       e.state = 'ready'
       if (!e.texture) {
@@ -55,29 +81,24 @@ export class ScreenFeed {
         coverFit(e.texture, video.videoWidth / video.videoHeight, this.aspect)
       }
     })
-    video.addEventListener('error', () => {
-      e.state = 'failed'
-      this.select(false)
-    })
-    video.src = this.src(theme, clip)
-    this.clips.set(key, e)
+    video.addEventListener('error', fail)
+    video.src = this.base + path
     return e
   }
 
-  // The clip for a step in the current theme, falling back to the dark
-  // recording, then to null (placeholder).
+  // The media for a step in the current theme, falling back to the dark
+  // media, then to null (placeholder).
   resolve(i) {
-    const step = this.steps[i]
-    if (!step) return null
-    let e = this.entry(this.theme, step.clip)
-    if (e.state === 'failed' && this.theme !== 'dark') e = this.entry('dark', step.clip)
+    if (!this.steps[i]) return null
+    let e = this.entry(this.path(i, this.theme))
+    if (e.state === 'failed' && this.theme !== 'dark') e = this.entry(this.path(i, 'dark'))
     return e.state === 'failed' ? null : e
   }
 
   activate(index, theme) {
     const changed = index !== this.index || theme !== this.theme
     // A theme switch mid-clip continues from the same moment in the other recording.
-    this.carry = index === this.index && theme !== this.theme ? this.want?.video.currentTime ?? 0 : 0
+    this.carry = index === this.index && theme !== this.theme ? this.want?.video?.currentTime ?? 0 : 0
     if (index !== this.index) this.startedAt = performance.now()
     this.index = index
     this.theme = theme
@@ -89,22 +110,23 @@ export class ScreenFeed {
 
   select(restart) {
     const next = this.resolve(this.index)
-    for (const e of this.clips.values()) if (e !== next) e.video.pause()
+    for (const e of this.media.values()) if (e !== next) e.video?.pause()
     if (next !== this.want) restart = true
     this.want = next
-    if (!next) return
-    next.video.loop = Boolean(this.steps[this.index]?.loop)
-    if (restart) next.video.currentTime = this.carry ?? 0
-    next.video.play().catch(() => {})
+    const v = next?.video
+    if (!v) return
+    v.loop = Boolean(this.steps[this.index]?.loop)
+    if (restart) v.currentTime = this.carry ?? 0
+    v.play().catch(() => {})
   }
 
   // Called every frame; returns the texture to put on the screen.
   frame(now) {
     const e = this.want
-    if (e?.texture && e.video.readyState >= 2) this.shown = e.texture
+    if (e?.texture && (!e.video || e.video.readyState >= 2)) this.shown = e.texture
     else if (!e) this.shown = this.placeholder
     if (this.shown === this.placeholder) {
-      drawPlaceholder(this.ctx, this.steps[this.index], this.index, this.theme, (now - this.startedAt) / 1000, this.src(this.theme, this.steps[this.index]?.clip ?? ''))
+      drawPlaceholder(this.ctx, this.steps[this.index], this.index, this.theme, (now - this.startedAt) / 1000, this.path(this.index, this.theme))
       this.placeholder.needsUpdate = true
     }
     return this.shown
@@ -112,13 +134,15 @@ export class ScreenFeed {
 
   dispose() {
     window.removeEventListener('pointerdown', this.retry)
-    for (const e of this.clips.values()) {
-      e.video.pause()
-      e.video.removeAttribute('src')
-      e.video.load()
+    for (const e of this.media.values()) {
+      if (e.video) {
+        e.video.pause()
+        e.video.removeAttribute('src')
+        e.video.load()
+      }
       e.texture?.dispose()
     }
-    this.clips.clear()
+    this.media.clear()
     this.placeholder.dispose()
   }
 }
@@ -222,6 +246,6 @@ function drawPlaceholder(ctx, step, index, theme, t, path) {
   ctx.textAlign = 'center'
   ctx.fillText('PLACEHOLDER — RECORD', w / 2, h - 160)
   ctx.fillStyle = fg
-  ctx.fillText(path.replace(/^.*?videos\//, 'videos/'), w / 2, h - 128)
+  ctx.fillText(path, w / 2, h - 128)
   ctx.textAlign = 'left'
 }
