@@ -61,23 +61,23 @@ writes the posters along with the clips.
 ### What each step shows
 
 Dark clips are cut from one full take (`XRecorder_20261003_01.mp4`, Oct 3) with
-`scripts/cut-clips.py`, which holds the cut times. Stills are the Sep 30 device
-screenshots from the *Stay Focused UI* folder; there is no light-mode recording
-yet, so light mode uses those screenshots and falls back to the dark clip where
-no light screenshot exists.
+`scripts/cut-clips.py`, which holds the cut times. The first three light clips
+were captured separately from the real Android app on Oct 3; the remaining
+light entries use the curated device screenshots until a complete light take is
+available.
 
 | # | Step | Dark | Light |
 |---|------|------|-------|
-| 00 | Intro | clip `00-intro` (Today, loops) | still `02-today` |
-| 01 | Choose a course | clip `01-course` | still `01-generate` |
-| 02 | Generate | clip `02-generate` (waiting sped up 10×) | still `generating` |
+| 00 | Intro | clip `00-intro` (Today, loops) | clip `00-intro` |
+| 01 | Choose a course | clip `01-course` | clip `01-course` |
+| 02 | Generate | clip `02-generate` (waiting sped up 10×) | clip `02-generate` |
 | 03 | Reviewer | clip `03-reviewer` | still `updated-reviewer` |
-| 04 | Study Assist 1/4 · quick assists | clip `04-assist-summarize` | dark clip |
-| 05 | Study Assist 2/4 · key points | clip `05-assist-keypoints` | dark clip |
+| 04 | Study Assist 1/4 · quick assists | clip `04-assist-summarize` | still `study-assist` |
+| 05 | Study Assist 2/4 · key points | clip `05-assist-keypoints` | still `study-assist` |
 | 06 | Study Assist 3/4 · selection | clip `06-assist-select` | still `study-assist` |
 | 07 | Study Assist 4/4 · grounding label | clip `07-assist-example` | still `study-assist` |
-| 08 | Practice quiz · create | clip `08-quiz-create` | dark clip |
-| 09 | Practice quiz · answer | clip `09-quiz-practice` | dark clip |
+| 08 | Practice quiz · create | clip `08-quiz-create` | still `04-library` |
+| 09 | Practice quiz · answer | clip `09-quiz-practice` | still `04-library` |
 | 10 | Library | still `06-library-course` | still `06-library-course` |
 | 11 | Tasks (swipe ←) | clip `11-tasks` | still `03-tasks` |
 | 12 | Today plan (swipe →) | clip `12-today-plan` | still `02-today` |
@@ -100,11 +100,21 @@ each step's `light` entry at its clip.
    and use demo data with real-looking content (no "test test" notes).
    - iOS Simulator: `xcrun simctl status_bar booted override --time 9:41 --batteryLevel 100 --cellularBars 4`
    - Android: enable *Demo mode* in Developer options to freeze the status bar.
-2. **Record the whole flow in one take**, then cut it into clips. One take
-   gives continuity: each clip ends on the exact screen the next one starts on,
-   so the steps play like one continuous video interrupted only by the scroll.
-   - iPhone: Control Center → Screen Recording. Simulator: `xcrun simctl io booted recordVideo flow.mov`.
-   - Android: Quick Settings → Screen record, or `adb shell screenrecord /sdcard/flow.mp4`.
+2. **Prefer recording each step separately from the real Android device.**
+   `scripts/record-showcase.py` drives the attached Stay Focused app by its
+   visible UI text, polls asynchronous generation states, records every clip
+   independently, normalizes it to H.264, and writes its first-frame poster:
+
+   ```
+   npm i --no-save ffmpeg-static
+   python scripts/record-showcase.py dark
+   python scripts/record-showcase.py light
+   ```
+
+   It uses `scrcpy --no-playback --record` when available (required on devices
+   that do not expose `screenrecord` to the adb shell). `--only 03-reviewer`
+   records a single named step while iterating on it. The fallback remains
+   `adb shell screenrecord /sdcard/flow.mp4`.
 3. **Move slower than feels natural.** Pause about half a second before each
    tap and after each result appears. The clip has to read at a glance while
    the phone is also moving.

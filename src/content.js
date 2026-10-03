@@ -40,7 +40,7 @@ export const poses = {
 export const steps = [
   {
     id: 'intro',
-    media: { dark: 'videos/dark/00-intro.mp4', light: 'images/light/02-today.webp' },
+    media: { dark: 'videos/dark/00-intro.mp4', light: 'videos/light/00-intro.mp4' },
     chapter: 'Stay Focused',
     title: 'Reviewers from your own course material.',
     body: 'Stay Focused turns lecture files into study reviewers, then helps you work through them with Study Assist. Scroll to watch it run.',
@@ -50,7 +50,7 @@ export const steps = [
   },
   {
     id: 'course',
-    media: { dark: 'videos/dark/01-course.mp4', light: 'images/light/01-generate.webp' },
+    media: { dark: 'videos/dark/01-course.mp4', light: 'videos/light/01-course.mp4' },
     chapter: 'Choose a course',
     title: 'Pick a course, then the lecture.',
     body: 'Your Canvas courses are listed in Generate. Open one, choose a lecture file and request a reviewer.',
@@ -58,7 +58,7 @@ export const steps = [
   },
   {
     id: 'generate',
-    media: { dark: 'videos/dark/02-generate.mp4', light: 'images/light/generating.webp' },
+    media: { dark: 'videos/dark/02-generate.mp4', light: 'videos/light/02-generate.mp4' },
     chapter: 'Generate',
     title: 'A reviewer, written from that file.',
     body: 'Generation runs in the background, so you can leave the screen. Queue tracks it and Library keeps the result.',
@@ -75,7 +75,7 @@ export const steps = [
   // Study Assist is the defining feature, so it gets one stop per way of using it.
   {
     id: 'assist-summarize',
-    media: { dark: 'videos/dark/04-assist-summarize.mp4' },
+    media: { dark: 'videos/dark/04-assist-summarize.mp4', light: 'images/light/study-assist.webp' },
     chapter: 'Study Assist',
     part: '1 / 4',
     title: 'Quick assists for the whole concept.',
@@ -84,7 +84,7 @@ export const steps = [
   },
   {
     id: 'assist-keypoints',
-    media: { dark: 'videos/dark/05-assist-keypoints.mp4' },
+    media: { dark: 'videos/dark/05-assist-keypoints.mp4', light: 'images/light/study-assist.webp' },
     chapter: 'Study Assist',
     part: '2 / 4',
     title: 'Or only the key points you pick.',
@@ -111,7 +111,7 @@ export const steps = [
   },
   {
     id: 'quiz-create',
-    media: { dark: 'videos/dark/08-quiz-create.mp4' },
+    media: { dark: 'videos/dark/08-quiz-create.mp4', light: 'images/light/04-library.webp' },
     chapter: 'Practice quiz',
     title: 'Turn the reviewer into a quiz.',
     body: 'Choose the number of questions, the difficulty and the question formats. The quiz is built from the reviewer’s topics.',
@@ -119,7 +119,7 @@ export const steps = [
   },
   {
     id: 'quiz-practice',
-    media: { dark: 'videos/dark/09-quiz-practice.mp4' },
+    media: { dark: 'videos/dark/09-quiz-practice.mp4', light: 'images/light/04-library.webp' },
     chapter: 'Practice quiz',
     title: 'Answer, check, and see what to revisit.',
     body: 'Results list the ideas you missed, so the next session knows where to start.',
