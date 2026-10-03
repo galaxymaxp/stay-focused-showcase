@@ -157,3 +157,15 @@ Check a clip with `npm run dev` and scroll to its step.
 branch on every push to `main` (or to the branch named in that workflow).
 GitHub Pages serves `gh-pages`: **Settings → Pages → Deploy from a branch →
 `gh-pages` / root**.
+
+## Releasing the Android app
+
+The page's **Download for Android** button links to
+`https://github.com/galaxymaxp/stay-focused-showcase/releases/latest/download/StayFocused.apk`,
+which always serves the newest release. To publish a build:
+
+1. In Google Drive, share the APK as **Anyone with the link**.
+2. In GitHub, open **Actions → Release APK → Run workflow**, enter a new tag (e.g. `bver2`)
+   and the APK's Drive file ID (from its share link: `drive.google.com/file/d/<ID>/view`).
+3. The workflow downloads the APK, checks it really is one, and publishes the release with
+   `StayFocused.apk` and its SHA-256 checksum. The button serves it immediately.

@@ -1,0 +1,55 @@
+name: Release APK
+
+# Publishes an Android build as a GitHub release, run by hand from the
+# Actions tab (or the API). The APK is fetched from Google Drive and attached
+# under a fixed name, so this link always serves the newest release:
+#   https://github.com/galaxymaxp/stay-focused-showcase/releases/latest/download/StayFocused.apk
+# The Drive file must be shared as "Anyone with the link" while this runs.
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag, e.g. bver1
+        required: true
+      drive_id:
+        description: Google Drive file ID of the APK
+        required: true
+        default: 1Q7LZazCsf5MMFd7YVF_jmQiyta8ihE1N
+      notes:
+        description: Release notes
+        required: false
+        default: Android build of Stay Focused. Install by opening the APK on your phone and allowing installs from this source.
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download APK from Drive
+        env:
+          DRIVE_ID: ${{ inputs.drive_id }}
+        run: |
+          curl -fL --retry 3 -o StayFocused.apk \
+            "https://drive.usercontent.google.com/download?id=${DRIVE_ID}&export=download&confirm=t"
+          # A file that is not shared publicly comes back as an HTML sign-in page.
+          if [ "$(head -c 2 StayFocused.apk)" != "PK" ]; then
+            echo "::error::Drive did not return an APK. Share the file as 'Anyone with the link' and run again."
+            head -c 300 StayFocused.apk; exit 1
+          fi
+          ls -l StayFocused.apk
+          sha256sum StayFocused.apk | tee StayFocused.apk.sha256
+
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.tag }}
+          NOTES: ${{ inputs.notes }}
+        run: |
+          gh release create "$TAG" StayFocused.apk StayFocused.apk.sha256 \
+            --repo "$GITHUB_REPOSITORY" \
+            --target "$GITHUB_SHA" \
+            --title "Stay Focused $TAG" \
+            --notes "$NOTES" \
+            --latest
