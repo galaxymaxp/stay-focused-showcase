@@ -21,7 +21,7 @@ export default function App() {
   const [theme, setTheme] = useState(initialTheme)
   const [active, setActive] = useState(0)
   const [hold, setHold] = useState(null)
-  const canvasRef = useRef()
+  const scroller = useRef()
   const sections = useRef([])
 
   useEffect(() => {
@@ -34,10 +34,14 @@ export default function App() {
 
   // Turns the scroll offset into a position in steps. The scene reads the
   // fractional value to move the phone; the rounded value picks the clip.
+  // The steps scroll inside a fixed full-screen container rather than the
+  // page itself, so mobile browsers never slide their address bar away: the
+  // visible height stays constant and snapping never re-aligns mid-scroll.
   useEffect(() => {
+    const el = scroller.current
     let tops = []
     const onScroll = () => {
-      const y = window.scrollY
+      const y = el.scrollTop
       let i = 0
       while (i < tops.length - 1 && y >= tops[i + 1]) i++
       const span = (tops[i + 1] ?? tops[i] + 1) - tops[i]
@@ -50,10 +54,11 @@ export default function App() {
       onScroll()
     }
     measure()
-    window.addEventListener('scroll', onScroll, { passive: true })
+    el.focus({ preventScroll: true }) // so arrow / page keys scroll the steps
+    el.addEventListener('scroll', onScroll, { passive: true })
     window.addEventListener('resize', measure)
     return () => {
-      window.removeEventListener('scroll', onScroll)
+      el.removeEventListener('scroll', onScroll)
       window.removeEventListener('resize', measure)
     }
   }, [])
@@ -77,7 +82,7 @@ export default function App() {
     [goTo],
   )
 
-  useGestures(canvasRef, {
+  useGestures(scroller, {
     holdMs: gestures.holdMs,
     onSwipe: swipe,
     onHold: toggleTheme,
@@ -99,7 +104,7 @@ export default function App() {
 
   return (
     <>
-      <div className="canvas" ref={canvasRef}>
+      <div className="canvas">
         <PhoneScene steps={steps} active={active} theme={theme} />
       </div>
 
@@ -116,7 +121,7 @@ export default function App() {
         </button>
       </header>
 
-      <main className="steps">
+      <main className="steps" ref={scroller} tabIndex={-1}>
         {steps.map((s, i) => {
           const Heading = i === 0 ? 'h1' : 'h2'
           return (

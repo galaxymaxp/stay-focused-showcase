@@ -46,7 +46,10 @@ export function useGestures(ref, handlers) {
       start = null
       stopHold()
     }
-    const noMenu = (e) => e.preventDefault()
+    // A long press on a touch screen would open the context menu; keep the
+    // mouse's right-click menu.
+    const coarse = window.matchMedia('(pointer: coarse)').matches
+    const noMenu = (e) => coarse && e.preventDefault()
 
     el.addEventListener('pointerdown', down)
     el.addEventListener('contextmenu', noMenu)

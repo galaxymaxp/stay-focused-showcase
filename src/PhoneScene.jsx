@@ -153,6 +153,10 @@ export default function PhoneScene({ steps, active, theme }) {
 
   return (
     <Canvas
+      // The scrolling steps sit on top of the canvas, so pointer tracking (the
+      // desktop tilt) listens on the whole app instead of the canvas itself.
+      eventSource={document.getElementById('root')}
+      eventPrefix="client"
       dpr={[1, 2]}
       camera={{ position: [0, 0, CAM_Z], fov: 35, near: 0.1, far: 40 }}
       gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}

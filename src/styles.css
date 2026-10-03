@@ -22,12 +22,17 @@
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
-/* Mandatory snapping with snap-stop: every scroll lands on exactly one step,
-   so each clip gets to play instead of being flicked past. */
+/* The page itself never scrolls: it is exactly one screen, and the steps
+   scroll inside .steps. Mobile browsers only collapse their address bar when
+   the page scrolls, so the visible height never changes under the snapping. */
+html, body {
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
 html {
   background: var(--bg);
   color: var(--fg);
-  scroll-snap-type: y mandatory;
   transition: background 0.4s ease, color 0.4s ease;
 }
 body {
@@ -37,16 +42,10 @@ body {
   transition: background 0.4s ease;
 }
 
-/* The canvas takes the touches: vertical drags scroll the page, horizontal
-   drags and long presses are the app gestures. */
 .canvas {
   position: fixed;
   inset: 0;
   z-index: 0;
-  touch-action: pan-y;
-  user-select: none;
-  -webkit-user-select: none;
-  -webkit-touch-callout: none;
 }
 
 .nav {
@@ -80,9 +79,31 @@ body {
   cursor: pointer;
 }
 
-.steps { position: relative; z-index: 1; pointer-events: none; }
+/* The full-screen scroller, above the canvas. It takes the touches: vertical
+   drags scroll the steps, horizontal drags and long presses are the app
+   gestures. Mandatory snapping with snap-stop lands every scroll on exactly
+   one step, so each clip gets to play instead of being flicked past. */
+.steps {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scroll-snap-type: y mandatory;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  outline: none;
+}
+.steps::-webkit-scrollbar { display: none; }
+@media (pointer: fine) {
+  .steps { user-select: auto; -webkit-user-select: auto; }
+}
 .step {
-  height: 100svh;
+  height: 100%;
   scroll-snap-align: start;
   scroll-snap-stop: always;
   display: flex;
@@ -238,6 +259,5 @@ h2 { font-size: clamp(40px, 4.4vw, 66px); }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  html { scroll-behavior: auto; }
   .copy, .pill, html, body { transition: none; }
 }
