@@ -9,7 +9,15 @@
 export const app = {
   name: 'Stay Focused',
   tagline: 'Reviewers from your own course material, with Study Assist built in.',
-  cta: { label: 'Get the app', href: '#' },
+  // Direct download of the release APK in Google Drive (Stay Focused Release /
+  // StayFocused.bver1.apk). To ship a new build, use Drive's "Manage versions →
+  // Upload new version" on that same file: the ID, and so this link, stay the
+  // same and always serve the latest APK. The file must be shared as
+  // "Anyone with the link" or visitors get a sign-in page.
+  cta: {
+    label: 'Download for Android',
+    href: 'https://drive.usercontent.google.com/download?id=1Q7LZazCsf5MMFd7YVF_jmQiyta8ihE1N&export=download',
+  },
   portfolio: 'https://galaxymaxp.github.io/portfolio/',
 }
 
