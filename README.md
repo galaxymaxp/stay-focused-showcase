@@ -164,8 +164,10 @@ The page's **Download for Android** button links to
 `https://github.com/galaxymaxp/stay-focused-showcase/releases/latest/download/StayFocused.apk`,
 which always serves the newest release. To publish a build:
 
-1. In Google Drive, share the APK as **Anyone with the link**.
+1. Get the APK link. For an EAS build, open the build on expo.dev and copy its
+   **Download** link (`https://expo.dev/artifacts/eas/....apk`). For a Drive file, share it as
+   **Anyone with the link** and use its file ID (`drive.google.com/file/d/<ID>/view`).
 2. In GitHub, open **Actions → Release APK → Run workflow**, enter a new tag (e.g. `bver2`)
-   and the APK's Drive file ID (from its share link: `drive.google.com/file/d/<ID>/view`).
+   and either the APK link or the Drive file ID. The link wins when both are filled in.
 3. The workflow downloads the APK, checks it really is one, and publishes the release with
    `StayFocused.apk` and its SHA-256 checksum. The button serves it immediately.
