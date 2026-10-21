@@ -175,6 +175,7 @@ h2 { font-size: clamp(40px, 4.4vw, 66px); }
   pointer-events: none;
 }
 .hud .row { margin-top: 0; }
+.hud .row + .hud-label { margin-top: 14px; }
 .hud-label {
   font-family: var(--mono);
   font-size: 11px;

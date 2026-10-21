@@ -52,6 +52,7 @@ export const steps = [
     hint: 'Scroll ↓ · swipe ← → · hold',
     pose: 'hero',
     loop: true,
+    download: true, // download button on the first screen, no scrolling needed
   },
   {
     id: 'course',

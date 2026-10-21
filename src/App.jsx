@@ -139,6 +139,7 @@ export default function App() {
                 <Heading>{s.title}</Heading>
                 <p className="body">{s.body}</p>
                 {s.hint && <p className="hint">{s.hint}</p>}
+                {s.download && <Download />}
                 {s.cta && <Cta />}
               </div>
             </section>
@@ -147,11 +148,12 @@ export default function App() {
       </main>
 
       {/* Phones see only the phone: one line of context, or the buttons on the last step. */}
-      <div className="hud" aria-hidden={step.cta ? undefined : 'true'}>
+      <div className="hud" aria-hidden={step.cta || step.download ? undefined : 'true'}>
         {step.cta ? (
           <Cta />
         ) : (
           <>
+            {step.download && <Download />}
             <p className="hud-label">
               {pad(active)} · {step.chapter}
               {step.part && ` ${step.part}`}
@@ -186,6 +188,17 @@ export default function App() {
         </svg>
       )}
     </>
+  )
+}
+
+// Both download buttons (first and last step) use the same app.cta link.
+function Download() {
+  return (
+    <div className="row">
+      <a className="pill solid" href={app.cta.href}>
+        {app.cta.label}
+      </a>
+    </div>
   )
 }
 
